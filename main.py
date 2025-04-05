@@ -55,6 +55,8 @@ async def recibir_mensaje(request: Request):
     mensaje_usuario = data.get("mensaje", "")
 
     # ⚠️ Creamos el cliente DENTRO del endpoint, no al inicio del script
+    print("CLAVE DE API:", os.getenv("OPENAI_API_KEY"))
+
     client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
     mensajes = [

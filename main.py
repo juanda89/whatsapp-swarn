@@ -11,7 +11,8 @@ load_dotenv()
 app = FastAPI()
 
 # Cargamos la API key de OpenAI desde la variable de entorno
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
 
 # Definimos los agentes Swarm
 agents = [
@@ -72,7 +73,7 @@ async def recibir_mensaje(request: Request):
     ]
 
     # Llamamos a la API de OpenAI con los agentes Swarm
-    response = openai.chat.completions.create(
+    response = client.chat.completions.create(
         model="gpt-4",
         messages=mensajes,
         agents=agents,

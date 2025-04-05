@@ -11,8 +11,6 @@ load_dotenv()
 # Inicializamos la aplicación
 app = FastAPI()
 
-# Cargamos la API key de OpenAI desde la variable de entorno
-client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
 # Definimos los agentes Swarm

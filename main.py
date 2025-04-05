@@ -67,6 +67,11 @@ async def recibir_mensaje(request: Request):
     data = await request.json()
     mensaje_usuario = data.get("mensaje", "")
 
+    # 💡 IMPRIMIMOS el valor justo cuando llega una solicitud
+    print("CLAVE DE API:", os.getenv("OPENAI_API_KEY"))
+
+    client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
     # Creamos la conversación base
     mensajes = [
         {"role": "system", "content": "Eres un sistema de agentes expertos en contenido digital."},

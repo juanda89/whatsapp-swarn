@@ -1,8 +1,9 @@
 # Importamos FastAPI para crear una API
 from fastapi import FastAPI, Request
 import openai
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
+
 
 # Cargamos las variables del archivo .env
 load_dotenv()

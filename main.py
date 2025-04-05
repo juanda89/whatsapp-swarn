@@ -63,6 +63,7 @@ agents = [
 async def recibir_mensaje(request: Request):
     # Extraemos el JSON enviado desde n8n
     data = await request.json()
+    print("🔥 WEBHOOK RECIBIDO:", data)
     mensaje_usuario = data.get("mensaje", "")
 
     # 💡 IMPRIMIMOS el valor justo cuando llega una solicitud

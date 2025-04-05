@@ -66,10 +66,11 @@ async def recibir_mensaje(request: Request):
     print("🔥 WEBHOOK RECIBIDO:", data)
     mensaje_usuario = data.get("mensaje", "")
 
-    # 💡 IMPRIMIMOS el valor justo cuando llega una solicitud
-    print("CLAVE DE API:", os.getenv("OPENAI_API_KEY"))
 
-    client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+    api_key = os.getenv("OPENAI_API_KEY")
+    print("🔑 CLAVE LEÍDA:", api_key)
+    client = openai.OpenAI(api_key=api_key)
 
     # Creamos la conversación base
     mensajes = [

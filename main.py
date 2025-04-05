@@ -1,10 +1,21 @@
+# Importamos FastAPI para crear una API
 from fastapi import FastAPI, Request
 import openai
 import os
+from dotenv import load_dotenv
 
+
+# Cargamos las variables del archivo .env
+load_dotenv()
+
+# Inicializamos la aplicación
 app = FastAPI()
 
-# Definimos los agentes
+# Cargamos la API key de OpenAI desde la variable de entorno
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+
+# Definimos los agentes Swarm
 agents = [
     {
         "name": "coordinador_estrategico",
@@ -49,21 +60,20 @@ agents = [
     }
 ]
 
+# Creamos el endpoint al que n8n enviará el mensaje del usuario
 @app.post("/webhook")
 async def recibir_mensaje(request: Request):
+    # Extraemos el JSON enviado desde n8n
     data = await request.json()
     mensaje_usuario = data.get("mensaje", "")
 
-    # ⚠️ Creamos el cliente DENTRO del endpoint, no al inicio del script
-    print("CLAVE DE API:", os.getenv("OPENAI_API_KEY"))
-
-    client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
+    # Creamos la conversación base
     mensajes = [
         {"role": "system", "content": "Eres un sistema de agentes expertos en contenido digital."},
         {"role": "user", "content": mensaje_usuario}
     ]
 
+    # Llamamos a la API de OpenAI con los agentes Swarm
     response = client.chat.completions.create(
         model="gpt-4",
         messages=mensajes,
@@ -71,10 +81,13 @@ async def recibir_mensaje(request: Request):
         tool_choice="auto"
     )
 
-    return {"respuesta": response.choices[0].message.content}
+    # Obtenemos el texto de respuesta
+    respuesta = response.choices[0].message.content
 
+    # Devolvemos la respuesta en formato JSON
+    return {"respuesta": respuesta}
 
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port)
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)

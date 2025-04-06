@@ -1,1 +1,12 @@
+# Entorno virtual (no subir)
+venv/
+
+# Archivos temporales de Python
+__pycache__/
+*.pyc
+
+# Archivos ocultos de macOS
+.DS_Store
+
+# Archivos de entorno
 .env

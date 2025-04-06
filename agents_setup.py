@@ -1,9 +1,12 @@
 #agents_setup.py
 import os
 from agents import Agent, Runner, set_default_openai_key
+<<<<<<< HEAD
 from dotenv import load_dotenv
 load_dotenv()
 
+=======
+>>>>>>> 47c87157cc006175f3db2c8cfdf56eecbf70bdf3
 
 # Configurar clave de API de OpenAI desde variables de entorno
 openai_api_key = os.getenv("OPENAI_API_KEY")

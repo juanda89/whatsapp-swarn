@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 #models.py
-=======
->>>>>>> 47c87157cc006175f3db2c8cfdf56eecbf70bdf3
 import os
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base

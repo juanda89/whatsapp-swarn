@@ -1,46 +1,56 @@
-# main.py
+#main.py
 import os
-from fastapi import FastAPI, Request
-from agents import Agent, Runner
-from dotenv import load_dotenv
 import asyncio
+from flask import Flask, request, jsonify
+from agents_setup import AGENTS  # Importar diccionario de agentes base
+from models import SessionLocal, ConversationMemory
+from agents import Runner
 
-load_dotenv()
+app = Flask(__name__)
 
-app = FastAPI()
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    # Obtener datos del mensaje entrante (ajustar claves según formato de entrada)
+    data = request.get_json(force=True)
+    user_id = data.get("user_id") or data.get("From")  # ID único del usuario (ej: número WhatsApp)
+    message_text = data.get("message") or data.get("Body")  # Texto del mensaje del usuario
+    agent_name = data.get("agent", "assistant")  # Agente objetivo (por defecto "assistant")
+    if agent_name not in AGENTS:
+        agent_name = "assistant"  # Usa agente por defecto si no es válido
 
-# Agentes definidos
-spanish_agent = Agent(
-    name="Spanish agent",
-    instructions="Responde solamente en español, como experto en redes sociales para negocios.",
-)
+    # Iniciar sesión de DB y recuperar memoria conversacional previa
+    db = SessionLocal()
+    memory_entry = db.query(ConversationMemory).filter_by(user_id=user_id, agent_name=agent_name).first()
+    if memory_entry and memory_entry.messages:
+        conversation = list(memory_entry.messages)  # copiar lista existente
+    else:
+        conversation = []  # iniciar nueva conversación si no existe
 
-english_agent = Agent(
-    name="English agent",
-    instructions="Respond only in English, as a content strategy expert.",
-)
+    # Añadir el mensaje actual del usuario a la conversación
+    conversation.append({"role": "user", "content": message_text})
 
-triage_agent = Agent(
-    name="Triage agent",
-    instructions="Responde el mensaje o transfiérelo al agente correcto según el idioma.",
-    handoffs=[spanish_agent, english_agent],
-)
+    # Clonar el agente base para este usuario (preserva instrucciones del agente)
+    base_agent = AGENTS[agent_name]
+    agent_instance = base_agent.clone()
 
-@app.post("/webhook")
-async def recibir_mensaje(request: Request):
-    data = await request.json()
-    mensaje_usuario = data.get("mensaje", "")
+    # Ejecutar el agente con la conversación actualizada
+    result = asyncio.run(Runner.run(agent_instance, conversation))
+    assistant_reply = str(result.final_output)  # respuesta final del agente como texto
 
-    print("🔥 WEBHOOK RECIBIDO:", mensaje_usuario)
+    # Añadir la respuesta del asistente a la conversación
+    conversation.append({"role": "assistant", "content": assistant_reply})
 
-    try:
-        result = await Runner.run(triage_agent, input=mensaje_usuario)
-        return {"respuesta": result.final_output}
-    except Exception as e:
-        print("❌ ERROR:", str(e))
-        return {"error": str(e)}
+    # Guardar la conversación actualizada en la base de datos (memoria conversacional)
+    if memory_entry:
+        memory_entry.messages = conversation
+    else:
+        memory_entry = ConversationMemory(user_id=user_id, agent_name=agent_name, messages=conversation)
+        db.add(memory_entry)
+    db.commit()
+    db.close()
+
+    # Devolver la respuesta (ajustar formato según necesidad, p. ej. Twilio XML o JSON)
+    return jsonify({"reply": assistant_reply})
 
 if __name__ == "__main__":
-    import uvicorn
-    port = int(os.getenv("PORT", 8000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5050)))

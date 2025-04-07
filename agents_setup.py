@@ -11,8 +11,8 @@ if openai_api_key:
     set_default_openai_key(openai_api_key)
 
 # Agente de Triage
-agente_triage = Agent(
-    name="agente_triage",
+triage_agent = Agent(
+    name="assistant",
     handoff_description="Este agente identifica la intención detrás del mensaje del usuario y decide si requiere ideación de contenido u otro tipo de respuesta.",
     instructions="""Eres un agente de triage que analiza cada mensaje entrante y lo clasifica correctamente.
 Tu objetivo principal es entender si el mensaje del usuario necesita generación de ideas de contenido, análisis estratégico, información general o asistencia técnica.

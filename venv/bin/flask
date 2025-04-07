@@ -1,4 +1,4 @@
-#!/Users/juandavidvizcaya/Desktop/Desarrollos/whatsapp-swarn/venv/bin/python3.11
+#!/Users/juandavidvizcaya/Desktop/Desarrollos/whatsapp-swarn/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys

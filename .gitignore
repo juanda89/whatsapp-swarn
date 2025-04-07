@@ -10,3 +10,18 @@ __pycache__/
 
 # Archivos de entorno
 .env
+
+# Archivos de IDE
+.vscode/
+.idea/
+
+# Archivos de caché
+*.log
+*.pot
+*.pyc
+__pycache__/
+.pytest_cache/
+
+# Archivos de base de datos local
+*.db
+*.sqlite3

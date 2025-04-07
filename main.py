@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
 from agents_setup import AGENTS
-from models import SessionLocal, ConversationMemory
+from supabase_client import get_conversation_memory, save_conversation_memory
 from agents import Runner
 
 
@@ -29,9 +29,9 @@ async def webhook(payload: WebhookPayload):
     if agent_name not in AGENTS:
         agent_name = "assistant"
 
-    db = SessionLocal()
-    memory_entry = db.query(ConversationMemory).filter_by(user_id=user_id, agent_name=agent_name).first()
-    conversation = list(memory_entry.messages) if memory_entry and memory_entry.messages else []
+    # Obtener el historial de conversación desde Supabase
+    memory_entry = get_conversation_memory(user_id, agent_name)
+    conversation = list(memory_entry['messages']) if memory_entry and memory_entry.get('messages') else []
     conversation.append({"role": "user", "content": message_text})
 
     base_agent = AGENTS[agent_name]
@@ -41,14 +41,8 @@ async def webhook(payload: WebhookPayload):
     assistant_reply = str(result.final_output)
     conversation = result.to_input_list()
 
-    if memory_entry:
-        memory_entry.messages = conversation
-    else:
-        memory_entry = ConversationMemory(user_id=user_id, agent_name=agent_name, messages=conversation)
-        db.add(memory_entry)
-
-    db.commit()
-    db.close()
+    # Guardar el historial actualizado en Supabase
+    save_conversation_memory(user_id, agent_name, conversation)
 
     return {"reply": assistant_reply}
 

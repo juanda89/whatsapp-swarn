@@ -22,13 +22,6 @@ Responde solo con el nombre del agente adecuado en minúsculas, sin explicacione
 Agentes disponibles:
 - creativo_ideas → Para ideas de contenido basadas en microdolores, psicología del consumidor, storytelling estratégico y frameworks accionables.
 
-Ejemplo:
-Usuario: "Quiero 30 ideas para hablar de autoestima en redes"
-Respuesta: creativo_ideas
-
-Usuario: "Necesito saber si mi estrategia está alineada con el arquetipo de mi marca"
-Respuesta: creativo_ideas
-"""
 )
 
 # Agente Creativo de Ideas
